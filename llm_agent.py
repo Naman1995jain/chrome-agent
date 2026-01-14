@@ -115,7 +115,7 @@ def run_agent():
         
         while step_count < MAX_STEPS:
             step_count += 1
-            log(f"\n🔄 --- Step {step_count} ---")
+            log(f"\n --- Step {step_count} ---")
             time.sleep(2) # Give page time to settle
             
             # 1. Observe
@@ -149,7 +149,7 @@ Return ONLY the JSON. No markdown formatting.
 """
 
             # 2. Think
-            log("🧠 Thinking...")
+            log(" Thinking...")
             try:
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
@@ -162,33 +162,33 @@ Return ONLY the JSON. No markdown formatting.
                 # Clean up potential markdown code blocks
                 llm_output = llm_output.replace("```json", "").replace("```", "").strip()
                 
-                log(f"🤖 Agent says: {llm_output}")
+                log(f" Agent says: {llm_output}")
             except Exception as e:
-                log(f"⚠️ LLM Error: {e}")
+                log(f" LLM Error: {e}")
                 time.sleep(5)
                 continue
             
             try:
                 cmd = json.loads(llm_output)
             except:
-                log(f"❌ Failed to parse JSON: {llm_output}")
+                log(f" Failed to parse JSON: {llm_output}")
                 continue
                 
             action = cmd.get("action")
             
             # 3. Act
             if action == "finish":
-                log("✅ Goal Achieved!")
+                log(" Goal Achieved!")
                 break
             
             elif action == "navigate":
                 url = cmd.get("url")
                 try:
                     driver.get(url)
-                    log(f"🌐 Navigated to: {url}")
+                    log(f" Navigated to: {url}")
                     history.append(f"Navigated to {url}")
                 except Exception as e:
-                    log(f"❌ Navigation failed: {e}")
+                    log(f" Navigation failed: {e}")
 
             elif action == "wait":
                 time.sleep(3)
@@ -206,14 +206,14 @@ Return ONLY the JSON. No markdown formatting.
                         driver.execute_script("arguments[0].scrollIntoView(true);", el)
                         time.sleep(0.5)
                         el.click()
-                        log(f"🖱️ Clicked: {desc}")
+                        log(f" Clicked: {desc}")
                         history.append(f"Clicked {desc}")
                     except Exception as e:
-                        log(f"⚠️ Click failed, trying JS click: {e}")
+                        log(f" Click failed, trying JS click: {e}")
                         driver.execute_script("arguments[0].click();", el)
                         history.append(f"JS Clicked {desc}")
                 else:
-                    log(f"❌ Invalid element index: {idx}")
+                    log(f" Invalid element index: {idx}")
                     
             elif action == "type":
                 idx = cmd.get("element_index")
@@ -227,23 +227,23 @@ Return ONLY the JSON. No markdown formatting.
                         el.clear()
                         el.send_keys(text_to_type)
                         el.send_keys(Keys.RETURN) # often helpful
-                        log(f"⌨️  Typed '{text_to_type}' into {desc}")
+                        log(f"  Typed '{text_to_type}' into {desc}")
                         history.append(f"Typed '{text_to_type}'")
                     except Exception as e:
-                        log(f"❌ Typing failed: {e}")
+                        log(f" Typing failed: {e}")
                 else:
-                    log(f"❌ Invalid element index: {idx}")
+                    log(f" Invalid element index: {idx}")
             else:
-                log(f"❓ Unknown action: {action}")
+                log(f" Unknown action: {action}")
                 
             time.sleep(2)
 
     except Exception as e:
-        log(f"❌ Critical Error: {e}")
+        log(f" Critical Error: {e}")
         # traceback.print_exc() # print to stderr
         logging.error(traceback.format_exc())
     finally:
-        log("🔒 Closing logic finished. Browser stays open for 30s...")
+        log(" Closing logic finished. Browser stays open for 30s...")
         time.sleep(30)
         driver.quit()
 
